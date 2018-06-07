@@ -17,6 +17,7 @@ public class SpeechtoText_main {
 
 		File audio = new File("audio/sample1.wav");
 		RecognizeOptions options = null;
+
 		try{
 			options = new RecognizeOptions.Builder()
 					.model("ja-JP_BroadbandModel")
@@ -31,19 +32,29 @@ public class SpeechtoText_main {
 
 		System.out.println(transcript);
 
+
 		String s = String.valueOf(transcript);
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node = null;
 		try {
 			node = mapper.readTree(s);
+
+			MySQL mysql = new MySQL();
+			String text;
+			double confidence;
+			for(int i = 0; i < node.get("results").size(); i++){
+				text = node.get("results").get(i).get("alternatives").get(0).get("transcript").asText();
+				System.out.println("tarascript : " + text);
+				confidence = node.get("results").get(i).get("alternatives").get(0).get("confidence").asDouble();
+				System.out.println("confidence : " + confidence);
+				mysql.updateImage(text, confidence);
+			}
+
 		} catch (IOException e) {
 			// TODO 自動生成された catch ブロック
 			e.printStackTrace();
 		}
-		String alternatives_transcript = node.get("results").get(0).get("alternatives").get(0).get("transcript").asText();
-        System.out.println("alternatives_transcript : " + alternatives_transcript);
-        double alternatives_confidence = node.get("results").get(0).get("alternatives").get(0).get("confidence").asDouble();
-        System.out.println("alternatives_transcript : " + alternatives_confidence);
+
 	}
 
 }
